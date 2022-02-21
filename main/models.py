@@ -10,7 +10,7 @@ class Group(models.Model):
 
 class Student(AbstractUser):
     '''Student model, an extension of Django User'''
-    group = models.ForeignKey(Group, on_delete=CASCADE)
+    group = models.ForeignKey(Group, on_delete=CASCADE, blank=True, null=True)
 
     @property
     def score(self):
@@ -30,7 +30,7 @@ class Module (models.Model):
         return sum(map(lambda x: x.max_score or 0, self.tasks.all()))
 
 
-class Task (models.Model):
+class Task(models.Model):
     '''A task in module work'''
     name = models.CharField('Task Name', max_length=100, null=False)
     description = models.TextField()
