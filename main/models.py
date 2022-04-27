@@ -3,14 +3,20 @@ from django.db.models import Sum, CASCADE
 from django.contrib.auth.models import AbstractUser
 
 
-class Group(models.Model):
+class UniversityGroup(models.Model):
     '''A group of students'''
     name = models.CharField('Group Name', max_length=10, null=False)
+
+    def __str__(self):
+        return self.name
+        
+    def __repr__(self):
+        return self.name
 
 
 class Student(AbstractUser):
     '''Student model, an extension of Django User'''
-    group = models.ForeignKey(Group, on_delete=CASCADE, blank=True, null=True)
+    group = models.ForeignKey(UniversityGroup, on_delete=CASCADE, blank=True, null=True)
 
     @property
     def score(self):
