@@ -1,9 +1,11 @@
 from django.contrib import admin
-from django.urls import path, include
-from rest_framework_jwt.views import obtain_jwt_token
+from django.urls import path, re_path, include
+
 
 urlpatterns = [
     path('', include('main.urls')),
     path('admin/', admin.site.urls),
-    path('token-auth/', obtain_jwt_token),
+    re_path(r"^auth/", include("djoser.urls.base")),
+    re_path(r"^auth/", include("djoser.urls.jwt")),
+    re_path(r"^auth/", include("djoser.urls.authtoken")),
 ]
