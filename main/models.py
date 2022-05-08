@@ -23,7 +23,7 @@ class Student(AbstractUser):
         return self.student_stages.all.aggregate(Sum('score'))['score__sum']
 
 
-class Module (models.Model):
+class Module(models.Model):
     '''Entity for representation of module work'''
     name = models.CharField('Module Name', max_length=100, null=False)
     description = models.TextField()
@@ -46,7 +46,7 @@ class Task(models.Model):
         return self.stages.all().aggregate(Sum('max_score'))['max_score__sum']
 
 
-class Stage (models.Model):
+class Stage(models.Model):
     '''Represents a stage of the task'''
     name = models.CharField('Stage Name', max_length=100, null=False)
     max_score = models.IntegerField()
@@ -55,14 +55,14 @@ class Stage (models.Model):
     students = models.ManyToManyField(Student, related_name='stages', through='main.StudentStage')
 
 
-class StudentStage (models.Model):
+class StudentStage(models.Model):
     '''Binary relation student-stage for mark storing'''
     student = models.ForeignKey("main.Student", on_delete=models.CASCADE, related_name='student_stages')
     stage = models.ForeignKey("main.Stage", on_delete=models.CASCADE)
     score = models.IntegerField('Score for stage', null=False)
 
 
-class TaskModule (models.Model):
+class TaskModule(models.Model):
     '''Binary relation task-module for re-using tasks in modules'''
     task = models.ForeignKey("main.Task", on_delete=models.CASCADE)
     module = models.ForeignKey("main.Module", on_delete=models.CASCADE)

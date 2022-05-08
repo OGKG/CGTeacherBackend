@@ -1,10 +1,14 @@
 from django.urls import path, include
-from .views import UserViewSet, UniversityGroupViewSet
 from rest_framework import routers
+from .views import ModuleViewSet, TaskViewSet, UserViewSet, UniversityGroupViewSet
+
 
 router = routers.DefaultRouter()
 router.register('users', UserViewSet)
 router.register('groups', UniversityGroupViewSet)
+router.register('tasks', TaskViewSet)
+router.register('modules', ModuleViewSet)
+
 
 urlpatterns = [
     # path('current_user/', current_user),
