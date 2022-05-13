@@ -1,7 +1,13 @@
 from rest_framework import viewsets
 from rest_framework import permissions
-from .serializers import ModuleSerializer, ModuleTasksSerializer, TaskSerializer, UserSerializer, UniversityGroupSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from CGMark.tasks.graham import GrahamTask
+from .serializers import ModuleSerializer, TaskSerializer, UserSerializer, UniversityGroupSerializer
 from main.models import Module, Task, UniversityGroup
+from CGMark.base.models.condition import PointListCondition
+from CGMark.base.models.base import Point
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -28,3 +34,12 @@ class TaskViewSet(viewsets.ModelViewSet):
 class ModuleViewSet(viewsets.ModelViewSet):
     queryset = Module.objects.all()
     serializer_class = ModuleSerializer
+
+
+class GrahamTaskAPIView(APIView):
+    def __init__(self):
+        condition = PointListCondition(point_list=[Point(x=7, y=0), Point(x=3, y=3), Point(x=0, y=0)])
+        self.task = GrahamTask(condition=condition)
+    
+    def get(self, request, formats=None):
+        return Response(self.task.condition.dict())
