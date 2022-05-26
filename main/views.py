@@ -1,4 +1,6 @@
+import pickle
 from typing import Any
+from django.http import Http404
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.views import APIView
@@ -42,23 +44,28 @@ class ModuleViewSet(viewsets.ModelViewSet):
 
 class TaskAPIView(APIView):
     grader: type = Grader
-    task_class: type = Task
-    condition_class: type = Condition
-    condition_kwargs: dict[str, Any] = dict()
 
     def __init__(self, **kwargs):
-        condition = self.condition_class(**self.condition_kwargs)
-        self.task = self.task_class(condition=condition)
-        super().__init__(**kwargs)  
+        super().__init__(**kwargs)
 
-    def get(self, request, formats=None):
-        return Response(self.task.condition.dict())
+    def get(self, request, id, formats=None):
+        try:
+            task = pickle.load(Task.objects.get(id=id).pickle_dump)
+        except Task.DoesNotExist:
+            raise Http404
+
+        return Response(task.condition.dict())
     
-    def post(self, request):
-        correct_answers = self.task.answers
+    def post(self, request, id):
+        try:
+            task = pickle.load(Task.objects.get(id=id).pickle_dump)
+        except Task.DoesNotExist:
+            raise Http404
+        
+        correct_answers = task.answers
         student_answers = [
             type(answer)(**answer_data)
-            for answer, answer_data 
+            for answer, answer_data
             in zip(correct_answers, request.data)
         ]
         return Response(self.grader.grade(correct_answers, student_answers))
@@ -66,6 +73,3 @@ class TaskAPIView(APIView):
 
 class GrahamTaskAPIView(TaskAPIView):
     grader: type = GrahamGrader
-    task_class: type = GrahamTask
-    condition_class: type = PointListCondition
-    condition_kwargs: dict[str, Any] = {"point_list": [Point(x=7, y=0), Point(x=3, y=3), Point(x=0, y=0)]}
