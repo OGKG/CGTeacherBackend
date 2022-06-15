@@ -17,7 +17,7 @@ class UniversityGroupSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('id', 'name', 'description', 'pickle_dump')
+        fields = ('id', 'name', 'description', 'condition')
 
 
 class ModuleSerializer(serializers.ModelSerializer):

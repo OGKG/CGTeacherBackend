@@ -1,4 +1,4 @@
-import pickle
+import json
 from typing import Any
 from django.http import Http404
 from rest_framework import viewsets
@@ -44,25 +44,28 @@ class ModuleViewSet(viewsets.ModelViewSet):
 
 class TaskAPIView(APIView):
     grader: type = Grader
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    task_class: type = Task
+    condition_class: type = Condition
 
     def get(self, request, id, formats=None):
         try:
-            task = pickle.load(Task.objects.get(id=id).pickle_dump)
+            task = Task.objects.get(id=id)
+            condition = self.condition_class(**task.condition)
+
+            if not task.answers:
+                task.answers = [a.dict() for a in self.task_class(condition=condition).answers]
+                task.save()
         except Task.DoesNotExist:
             raise Http404
 
-        return Response(task.condition.dict())
+        return Response(task.condition)
     
     def post(self, request, id):
         try:
-            task = pickle.load(Task.objects.get(id=id).pickle_dump)
+            correct_answers = Task.objects.get(id=id).answers
         except Task.DoesNotExist:
             raise Http404
-        
-        correct_answers = task.answers
+
         student_answers = [
             type(answer)(**answer_data)
             for answer, answer_data
@@ -72,4 +75,6 @@ class TaskAPIView(APIView):
     
 
 class GrahamTaskAPIView(TaskAPIView):
-    grader: type = GrahamGrader
+    grader = GrahamGrader
+    task_class = GrahamTask
+    condition_class = PointListCondition
