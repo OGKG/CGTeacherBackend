@@ -40,6 +40,7 @@ class Task(models.Model):
     '''A task in module work'''
     name = models.CharField('Task Name', max_length=100, null=False)
     description = models.TextField()
+    pickle_dump = models.FileField(upload_to="tasks/")
 
     @property
     def max_score(self):
