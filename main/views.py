@@ -5,15 +5,14 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from CGMark.base.models.graham import GrahamPoint, GrahamPointList, GrahamTable
-from CGMark.mark.grader import Grader
-from CGMark.mark.graders.graham import GrahamGrader
+from MarkLib.grader import Grader
+from MarkLib import task as marklibtask
+from CGTasks.graham.task import GrahamTask
+from CGTasks.graham.grader import GrahamGrader
 
-from CGMark.tasks.graham import GrahamTask
+
 from .serializers import ModuleSerializer, TaskSerializer, UserSerializer, UniversityGroupSerializer
 from main.models import Module, Task, UniversityGroup
-from CGMark.base.models.condition import Condition, PointListCondition
-from CGMark.base.models.base import Point
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -44,6 +43,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
 
 class TaskAPIView(APIView):
     grader: type = Grader
+    task_class: type = marklibtask.Task
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -51,7 +51,8 @@ class TaskAPIView(APIView):
     def get(self, request, id, formats=None):
         try:
             task = pickle.load(Task.objects.get(id=id).pickle_dump)
-        except Task.DoesNotExist:
+            assert isinstance(task, self.task_class)
+        except (Task.DoesNotExist, AssertionError):
             raise Http404
 
         return Response(task.condition.dict())
@@ -72,4 +73,5 @@ class TaskAPIView(APIView):
     
 
 class GrahamTaskAPIView(TaskAPIView):
-    grader: type = GrahamGrader
+    grader = GrahamGrader
+    task_class = GrahamTask
