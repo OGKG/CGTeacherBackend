@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework import routers
-from .views import GrahamTaskAPIView, ModuleViewSet, TaskViewSet, UserViewSet, UniversityGroupViewSet
+from .views import GrahamTaskAPIView, ModuleViewSet, TaskViewSet, UserViewSet, UniversityGroupViewSet, GrahamSchemaAPIView
 
 
 router = routers.DefaultRouter()
@@ -14,5 +14,6 @@ urlpatterns = [
     # path('users/', UserList.as_view()),
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('graham-task/<int:id>', GrahamTaskAPIView.as_view())
+    path('graham-task/<int:id>', GrahamTaskAPIView.as_view()),
+    path('graham-task/schema', GrahamSchemaAPIView.as_view())
 ]

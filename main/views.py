@@ -9,7 +9,9 @@ from MarkLib.grader import Grader
 from MarkLib import task as marklibtask
 from CGTasks.graham.task import GrahamTask
 from CGTasks.graham.grader import GrahamGrader
+from pydantic import BaseModel
 
+from CGTasks.graham.model import GrahamTable
 
 from .serializers import ModuleSerializer, TaskSerializer, UserSerializer, UniversityGroupSerializer
 from main.models import Module, Task, UniversityGroup
@@ -71,7 +73,15 @@ class TaskAPIView(APIView):
         ]
         return Response(self.grader.grade(correct_answers, student_answers))
     
+class SchemaAPIView(APIView):
+    data_model: type = BaseModel
+
+    def get(self, request):
+        return Response(self.data_model.schema())
 
 class GrahamTaskAPIView(TaskAPIView):
     grader = GrahamGrader
     task_class = GrahamTask
+
+class GrahamSchemaAPIView(SchemaAPIView):
+    data_model = GrahamTable
